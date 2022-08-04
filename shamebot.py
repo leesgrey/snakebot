@@ -1,8 +1,8 @@
 import discord
 import os
 import datetime
-from random import randrange
 import json
+from random import randrange
 
 with open('config.json') as file:
   config = json.load(file)
@@ -35,7 +35,6 @@ COMMENT = [
 ]
 
 intents = discord.Intents.all()
-
 client = discord.Client(intents=intents)
 
 @client.event
@@ -44,24 +43,35 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-  if message.content.startswith('//wyd'):
+  if message.author == client.user:
+    return
+
+  if message.content.startswith('wyd'):
     if len(message.mentions) > 0:
       victim = message.mentions[0]
       if victim == client.user:
         await message.channel.send('ya mum lol')
         return
 
-      target = f'{victim.display_name} is'
-      activities = list(filter(lambda activity: type(activity).__name__ in ['Activity', 'Spotify'], victim.activities))
+      subject = f'{victim.display_name} is'
     else:
-      target = 'ur'
-      activities = list(filter(lambda activity: type(activity).__name__ in ['Activity', 'Spotify'], message.author.activities))
+      victim = message.author
+      subject = 'ur'
+
+    if victim.status == discord.Status.offline:
+      if victim == message.author:
+        await message.channel.send(f'{subject} offline? :face_with_raised_eyebrow: liar lmao')
+      else:
+        await message.channel.send(f'{subject} offline... touching grass maybe.... you should try it sometime.......')
+      return
+
+    activities = list(filter(lambda activity: type(activity).__name__ in ['Activity', 'Spotify'], victim.activities))
     if activities:
-      await message.channel.send(f'{target} {format_activity(activities[0])}')
+      await message.channel.send(f'{subject} {format_activity(activities[0])}')
       for activity in activities[1:]:
         await message.channel.send(f'and {format_activity(activity)}')
     else:
-      await message.channel.send(f'{target} not doing anything :/ go outside...')
+      await message.channel.send(f'{subject} not doing anything :/ go outside...')
 
 def format_activity(activity):
   message = ''
