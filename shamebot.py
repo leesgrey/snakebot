@@ -4,6 +4,7 @@ import datetime
 import json
 import math
 from random import randrange
+import re
 
 with open("config.json") as file:
     config = json.load(file)
@@ -41,6 +42,12 @@ MEAN_BINZ = [
     "ain't no way :skull:",
 ]
 
+NICE_FLAGS = [
+    'be nice',
+    'pls',
+    'please'
+]
+
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
@@ -60,20 +67,17 @@ async def on_message(message):
         if message.content in MEAN_BINZ:
             await message.add_reaction("\N{WHITE UP POINTING INDEX}")
 
-    mean = True
-    if (
-        "be nice" in message.content
-        or "please" in message.content
-        or "pls" in message.content
-    ):
-        mean = False
+    mean = True 
 
-    if message.content.lower().startswith("wyd"):
-        if (
-            message.content.startswith("all", 4)
-            or message.content.startswith("yall", 4)
-            or message.content.startswith("y'all", 4)
-        ):
+    if message.content.lower().startswith('wyd'):
+        message.content = message.content[4:]
+        for flag in NICE_FLAGS:
+            if flag in message.content:
+                message.content = message.content.split(flag, 1)[-1].strip()
+                mean = False
+                break
+        
+        if message.content.startswith('all') or message.content.startswith('yall') or message.content.startswith('y\'all'):
             channel_activities = {}
             channel_artists = {}
             for member in list(
@@ -142,13 +146,17 @@ async def on_message(message):
             if victim == client.user:
                 await message.channel.send("ya mum lol")
                 return
+            
+        elif message.content:
+            victim = message.guild.get_member_named(message.content)
+            print(victim)
 
         else:
             victim = message.author
         subject = victim.display_name
 
         if victim.bot == True:
-            is_bot = f"{subject} is a bot"
+            is_bot = f"**{subject}** is a bot"
             if mean:
                 await message.channel.send(rudeify(is_bot, "u dummy", 0, 1, 0, 5))
             else:
@@ -156,7 +164,7 @@ async def on_message(message):
             return
 
         if victim.status == discord.Status.offline:
-            offline_msg = f"{subject} is offline"
+            offline_msg = f"**{subject}** is offline"
             if mean:
                 if victim == message.author:
                     await message.channel.send(
@@ -185,8 +193,7 @@ async def on_message(message):
         )
         if activities:
             await message.channel.send(
-                f"{subject} {format_activity(activities[0], mean)}"
-            )
+                f"**{subject}** {format_activity(activities[0], mean)}"
             for activity in activities[1:]:
                 await message.channel.send(f"and {format_activity(activity, mean)}")
         else:
