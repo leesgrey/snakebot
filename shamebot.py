@@ -66,11 +66,11 @@ async def on_message(message):
             await message.add_reaction('\N{WHITE UP POINTING INDEX}')
 
     mean = True
-    if 'be nice' in message.content:
+    if 'be nice' in message.content or 'please' in message.content or 'pls' in message.content:
         mean = False
 
-    if message.content.startswith('wyd'):
-        if message.content.startswith('all', 4):
+    if message.content.lower().startswith('wyd'):
+        if message.content.startswith('all', 4) or message.content.startswith('yall', 4) or message.content.startswith('y\'all', 4):
             channel_activities = {}
             channel_artists= {}
             for member in list(filter(lambda member: not member.bot, message.channel.members)):
