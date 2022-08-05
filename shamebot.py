@@ -4,7 +4,6 @@ import datetime
 import json
 import math
 from random import randrange
-import re
 
 with open("config.json") as file:
     config = json.load(file)
@@ -145,14 +144,20 @@ async def on_message(message):
             
         elif message.content:
             victim = message.guild.get_member_named(message.content)
-            print(victim)
+            if victim is None:
+                if mean:
+                    await message.channel.send(f"who tf is {message.content} {EMOJI[randrange(len(EMOJI))]}")
+                else:
+                    await message.channel.send(f"cannot find user {message.content}")
+                return
+
 
         else:
             victim = message.author
-        subject = victim.display_name
+        subject = f"**{victim.display_name}**"
 
         if victim.bot == True:
-            is_bot = f"**{subject}** is a bot"
+            is_bot = f"{subject} is a bot"
             if mean:
                 await message.channel.send(rudeify(is_bot, "u dummy", 0, 1, 0, 5))
             else:
@@ -160,11 +165,11 @@ async def on_message(message):
             return
 
         if victim.status == discord.Status.offline:
-            offline_msg = f"**{subject}** is offline"
+            offline_msg = f"{subject} is offline"
             if mean:
                 if victim == message.author:
                     await message.channel.send(
-                        f"you're offline? :face_with_raised_eyebrow: liar lmao :lying_face:"
+                        f"you're \"offline\"? :face_with_raised_eyebrow: liar lmao :lying_face:"
                     )
                 else:
                     await message.channel.send(
@@ -188,7 +193,7 @@ async def on_message(message):
             )
         )
         if activities:
-            activities_msg = f"**{subject}** {format_activity(activities[0], mean)}"
+            activities_msg = f"{subject} {format_activity(activities[0], mean)}"
             for activity in activities[1:]:
                 activities_msg += f"\nand {format_activity(activity, mean)}"
             await message.channel.send(activities_msg)
@@ -198,7 +203,6 @@ async def on_message(message):
                 await message.channel.send(rudeify(no_activity, "go outside", 2))
             else:
                 await message.channel.send(f"{no_activity} :smile:")
-
 
 def get_time(start):
     seconds = (
