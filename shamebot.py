@@ -26,7 +26,11 @@ EMOJI = [
   ':sob:',
   ':skull:',
   ':joy:',
-  ':face_with_raised_eyebrow:'
+  ':face_with_raised_eyebrow:',
+  ':flushed:',
+  ':scream:',
+  ':thinking_face:,
+  ':face_with_hand_over_mouth:'
 ]
 
 COMMENT = [
