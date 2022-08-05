@@ -43,9 +43,7 @@ MEAN_BINZ = [
 ]
 
 NICE_FLAGS = [
-    'be nice',
-    'pls',
-    'please'
+    "be nice"
 ]
 
 intents = discord.Intents.all()
@@ -73,7 +71,7 @@ async def on_message(message):
         message.content = message.content[4:]
         for flag in NICE_FLAGS:
             if flag in message.content:
-                message.content = message.content.split(flag, 1)[-1].strip()
+                message.content = message.content.rsplit(flag, 1)[0].strip()
                 mean = False
                 break
         
@@ -123,7 +121,6 @@ async def on_message(message):
                 )
                 for listener in channel_artists[artist]:
                     music_str += f"> **{listener[0]}**: {listener[1]}\n"
-                music_str += "\n"
 
             activity_str = ""
             for activity in channel_activities:
@@ -136,7 +133,6 @@ async def on_message(message):
                 )
                 for gamer in channel_activities[activity]:
                     activity_str += f"> **{gamer[0]}** {gamer[1]}\n"
-                activity_str += "\n"
 
             await message.channel.send(f"{activity_str}{music_str}")
             return
@@ -192,10 +188,10 @@ async def on_message(message):
             )
         )
         if activities:
-            await message.channel.send(
-                f"**{subject}** {format_activity(activities[0], mean)}"
+            activities_msg = f"**{subject}** {format_activity(activities[0], mean)}"
             for activity in activities[1:]:
-                await message.channel.send(f"and {format_activity(activity, mean)}")
+                activities_msg += f"\nand {format_activity(activity, mean)}"
+            await message.channel.send(activities_msg)
         else:
             no_activity = f"{subject} isn't doing anything"
             if mean:
@@ -246,9 +242,9 @@ def format_item(name, users, verb, emoji="", mean=True):
 def format_activity(activity, mean=True):
     message = ""
     if type(activity).__name__ == "Spotify":
-        message += f"is listening to {activity.title} by {activity.artists[0]}"
+        message += f"is listening to **{activity.title} by {activity.artists[0]}**"
     else:
-        message += f"has been {TYPES[activity.type]} {activity.name}"
+        message += f"has been {TYPES[activity.type]} **{activity.name}**"
         hours, minutes = 0, 0
         if "start" in activity.timestamps:
             hours, minutes = get_time(activity.timestamps["start"])
