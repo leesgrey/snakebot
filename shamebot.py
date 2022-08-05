@@ -65,7 +65,6 @@ async def on_message(message):
         if message.content in MEAN_BINZ:
             await message.add_reaction('\N{WHITE UP POINTING INDEX}')
 
-
     mean = True
     if 'be nice' in message.content:
         mean = False
@@ -91,8 +90,8 @@ async def on_message(message):
                             if hours == 1:
                                 time_str += '1 hr '
                             elif hours > 1:
-                                time_str += f'{hours} hr '
-                            time_str += f'{minutes} minutes'
+                                time_str += f'{hours} hrs '
+                            time_str += f'{minutes} min'
                             time_str += ')'
                         new_gamer = (member.display_name, time_str)
                         if activity.name in channel_activities:
@@ -109,14 +108,16 @@ async def on_message(message):
                 music_str += format_item(artist, channel_artists[artist], 'listening to', ':musical_note:', mean)
                 for listener in channel_artists[artist]:
                     music_str += f'> **{listener[0]}**: {listener[1]}\n'
+                music_str += '\n'
             
             activity_str = ''
             for activity in channel_activities:
                 activity_str += format_item(activity, channel_activities[activity], 'playing', ':video_game:', mean)
                 for gamer in channel_activities[activity]:
                     activity_str += f'> **{gamer[0]}** {gamer[1]}\n'
+                activity_str += '\n'
 
-            await message.channel.send(f'{activity_str}\n{music_str}')
+            await message.channel.send(f'{activity_str}{music_str}')
             return
 
         if len(message.mentions) > 0:
@@ -134,20 +135,18 @@ async def on_message(message):
             if mean:
                 await message.channel.send(rudeify(is_bot, 'u dummy', 0, 1, 0, 5))
             else:
-                await message.channel.send(is_bot)
-
+                await message.channel.send(f'{is_bot} :robot:')
             return
 
         if victim.status == discord.Status.offline:
             offline_msg = f'{subject} is offline'
             if mean:
                 if victim == message.author:
-                    await message.channel.send(f'You\'re offline? :face_with_raised_eyebrow: liar lmao')
+                    await message.channel.send(f'you\'re offline? :face_with_raised_eyebrow: liar lmao')
                 else:
                     await message.channel.send(rudeify(offline_msg, 'touching grass maybe.... you should try it sometime...........', 3, 6, 0, 1))
             else:
                 await message.channel.send(f'{offline_msg} :sleeping:')
-
             return
 
         activities = list(filter(lambda activity: type(activity).__name__ in ['Activity', 'Spotify'], victim.activities))
@@ -169,8 +168,7 @@ def get_time(start):
     return (hours, minutes)
 
 def rudeify(message, quip = None, force_min1 = 0, force_max1 = 4, force_min2 = 0, force_max2 = 4):
-    rude_msg = ''
-    rude_msg += message
+    rude_msg = message 
     rude_msg += PUNCTUATION[randrange(len(PUNCTUATION))] * randrange(force_min1, force_max1)
     if quip:
         rude_msg += ' ' + quip
