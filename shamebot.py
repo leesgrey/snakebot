@@ -40,6 +40,14 @@ COMMENT = [
     'ok'
 ]
 
+MEAN_BINZ = [
+    'not you actually listening to this :joy_cat:',
+    'this isn\'t even music :scream_cat:',
+    'cringe :pouting_cat:',
+    'shut up :pouting_cat:',
+    'ain\'t no way :skull:'
+]
+
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
@@ -52,6 +60,11 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+
+    if message.author.id == 928689654818021426:
+        if message.content in MEAN_BINZ:
+            await message.add_reaction('\N{WHITE UP POINTING INDEX}')
+
 
     mean = True
     if 'be nice' in message.content:
