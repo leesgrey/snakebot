@@ -29,7 +29,7 @@ EMOJI = [
   ':face_with_raised_eyebrow:',
   ':flushed:',
   ':scream:',
-  ':thinking_face:,
+  ':thinking_face:',
   ':face_with_hand_over_mouth:'
 ]
 
@@ -86,6 +86,10 @@ async def on_message(message):
               channel_activities[activity.name].append(new_gamer)
             else:
               channel_activities[activity.name] = [new_gamer]
+
+      if len(channel_activities) == 0 and len(channel_artists) == 0:
+        await message.channel.send('no one\'s doing anything :sob:')
+        return
           
       music_str = ''
       for artist in channel_artists:
@@ -112,13 +116,22 @@ async def on_message(message):
       victim = message.author
     subject = victim.display_name
 
+    if victim.bot == True:
+      is_bot = f'{subject} is a bot'
+      if mean:
+        await message.channel.send(rudeify(is_bot, 'u dummy', 0, 1, 0, 5))
+      else:
+        await message.channel.send(is_bot)
+
+      return
+
     if victim.status == discord.Status.offline:
       offline_msg = f'{subject} is offline'
       if mean:
         if victim == message.author:
           await message.channel.send(f'You\'re offline? :face_with_raised_eyebrow: liar lmao')
         else:
-          await message.channel.send(rudeify(offline_msg, 'touching grass maybe.... you should try it sometime', 3, 6))
+          await message.channel.send(rudeify(offline_msg, 'touching grass maybe.... you should try it sometime...........', 3, 6, 0, 1))
       else:
         await message.channel.send(f'{offline_msg} :sleeping:')
 
@@ -130,9 +143,9 @@ async def on_message(message):
       for activity in activities[1:]:
         await message.channel.send(f'and {format_activity(activity, mean)}')
     else:
-      no_activity = f'{subject} is not doing anything'
+      no_activity = f'{subject} isn\'t doing anything'
       if mean:
-        await message.channel.send(rudeify(no_activity, 'go outside', 1))
+        await message.channel.send(rudeify(no_activity, 'go outside', 2))
       else:
         await message.channel.send(f'{no_activity} :smile:')
 
@@ -142,13 +155,13 @@ def get_time(start): # defaults to hours
   minutes = seconds // 60
   return (hours, minutes)
 
-def rudeify(message, quip = None, force_min = 0, force_max = 4):
+def rudeify(message, quip = None, force_min1 = 0, force_max1 = 4, force_min2 = 0, force_max2 = 4):
   rude_msg = ''
   rude_msg += message
-  rude_msg += PUNCTUATION[randrange(len(PUNCTUATION))] * randrange(force_min, force_max)
+  rude_msg += PUNCTUATION[randrange(len(PUNCTUATION))] * randrange(force_min1, force_max1)
   if quip:
     rude_msg += ' ' + quip
-    rude_msg += PUNCTUATION[randrange(len(PUNCTUATION))] * randrange(force_min, force_max)
+    rude_msg += PUNCTUATION[randrange(len(PUNCTUATION))] * randrange(force_min2, force_max2)
 
   return rude_msg
 
