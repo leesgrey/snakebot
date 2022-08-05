@@ -28,7 +28,7 @@ EMOJI = [
     ":thinking_face:",
     ":rofl:",
     ":face_with_hand_over_mouth:",
-    ":grimacing",
+    ":grimacing:",
 ]
 
 COMMENT = ["cringe", "lol", "lmao", "ok"]
@@ -44,14 +44,12 @@ MEAN_BINZ = [
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
-
 @client.event
 async def on_ready():
     print(f"hai im {client.user}")
     await client.change_presence(
         activity=discord.Activity(type=discord.ActivityType.watching, name="always...")
     )
-
 
 @client.event
 async def on_message(message):
