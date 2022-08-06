@@ -146,9 +146,6 @@ async def on_message(message):
 
         if len(message.mentions) > 0:
             victim = message.mentions[0]
-            if victim == client.user:
-                await message.channel.send("ya mum lol")
-                return
             
         elif message.content:
             victim = message.guild.get_member_named(message.content)
@@ -161,6 +158,11 @@ async def on_message(message):
 
         else:
             victim = message.author
+
+        if victim == client.user:
+            await message.channel.send("ya mum lol")
+            return
+
         subject = f"**{victim.display_name}**"
 
         if victim.bot == True:
@@ -215,8 +217,8 @@ async def on_message(message):
             await message.channel.send("```Commands:\nwyd @user: posts @user's current activity, defaults to caller if no user specified\nwyd all: posts the entire channel's current activity\n[command] be nice: forces shamebot to be nice (once) for the specified command```")
         await message.add_reaction("\N{FACE WITH ONE EYEBROW RAISED}")
 
-def get_time(start):
 
+def get_time(start):
     seconds = (
         datetime.datetime.now() - datetime.datetime.fromtimestamp(start // 1000)
     ).seconds
