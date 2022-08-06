@@ -210,8 +210,13 @@ async def on_message(message):
                 await message.channel.send(rudeify(no_activity, "go outside", 2))
             else:
                 await message.channel.send(f"{no_activity} :smile:")
+    elif client.user.mentioned_in(message):
+        if 'help' in message.content:
+            await message.channel.send("```Commands:\nwyd @user: posts @user's current activity, defaults to caller if no user specified\nwyd all: posts the entire channel's current activity\n[command] be nice: forces shamebot to be nice (once) for the specified command```")
+        await message.add_reaction("\N{FACE WITH ONE EYEBROW RAISED}")
 
 def get_time(start):
+
     seconds = (
         datetime.datetime.now() - datetime.datetime.fromtimestamp(start // 1000)
     ).seconds
@@ -252,7 +257,7 @@ def format_item(name, users, verb, emoji="", mean=True):
 def format_activity(activity, mean=True):
     message = ""
     if type(activity).__name__ == "Spotify":
-        message += f"is listening to **{activity.title} by {activity.artists[0]}**"
+        message += f"is listening to **{activity.title}** by **{activity.artists[0]}**"
     else:
         message += f"has been {TYPES[activity.type]} **{activity.name}**"
         hours, minutes = 0, 0
