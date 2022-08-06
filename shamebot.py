@@ -38,7 +38,7 @@ MEAN_BINZ = [
     "this isn't even music :scream_cat:",
     "cringe :pouting_cat:",
     "shut up :pouting_cat:",
-    "ain't no way :skull:",
+    "ain't no way :skull:"
 ]
 
 NICE_FLAGS = [
@@ -61,12 +61,20 @@ async def on_message(message):
         return
 
     if message.author.id == 928689654818021426:
-        if message.content in MEAN_BINZ:
+        past_two = await message.channel.history(limit = 2).flatten()
+        to_me = past_two[-1].author == client.user
+        if to_me:
+            if message.content in MEAN_BINZ:
+                await message.add_reaction("\N{CRYING FACE}")
+            else:
+                await message.add_reaction("\N{GRINNING FACE WITH SMILING EYES}")
+        elif message.content in MEAN_BINZ:
             await message.add_reaction("\N{WHITE UP POINTING INDEX}")
+            if randrange(2) == 0:
+                await message.channel.send("so true binz")
 
     mean = True 
-
-    if message.content.lower().startswith('wyd'):
+    if message.content.lower().startswith("wyd"):
         message.content = message.content[4:]
         for flag in NICE_FLAGS:
             if flag in message.content:
@@ -74,7 +82,7 @@ async def on_message(message):
                 mean = False
                 break
         
-        if message.content.startswith('all') or message.content.startswith('yall') or message.content.startswith('y\'all'):
+        if message.content.startswith("all") or message.content.startswith("yall") or message.content.startswith("y\'all"):
             channel_activities = {}
             channel_artists = {}
             for member in list(
@@ -151,7 +159,6 @@ async def on_message(message):
                     await message.channel.send(f"cannot find user {message.content}")
                 return
 
-
         else:
             victim = message.author
         subject = f"**{victim.display_name}**"
@@ -211,7 +218,6 @@ def get_time(start):
     hours, seconds = divmod(seconds, 3600)
     minutes = seconds // 60
     return (hours, minutes)
-
 
 def rudeify(message, quip=None, force_min1=0, force_max1=4, force_min2=0, force_max2=4):
     rude_msg = message
