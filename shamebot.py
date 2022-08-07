@@ -96,11 +96,11 @@ async def on_message(message):
                             channel_artists[artist].append(new_listener)
                         else:
                             channel_artists[artist] = [new_listener]
-                    elif type(activity).__name__ == "Activity":
+                    elif type(activity).__name__ in ["Activity", "Game", "Streaming"]:
                         time_str = ""
-                        if "start" in activity.timestamps:
+                        if activity.start:
                             time_str += "("
-                            hours, minutes = get_time(activity.timestamps["start"])
+                            hours, minutes = get_time(activity.start)
                             if hours == 1:
                                 time_str += "1 hr "
                             elif hours > 1:
@@ -197,8 +197,8 @@ async def on_message(message):
 
         activities = list(
             filter(
-                lambda activity: type(activity).__name__ in ["Activity", "Spotify"],
-                victim.activities,
+                lambda activity: type(activity).__name__ in ["Activity", "Spotify", "Game", "Streaming"],
+                victim.activities
             )
         )
         if activities:
@@ -219,9 +219,7 @@ async def on_message(message):
 
 
 def get_time(start):
-    seconds = (
-        datetime.datetime.now() - datetime.datetime.fromtimestamp(start // 1000)
-    ).seconds
+    seconds = (datetime.datetime.utcnow() - start).seconds
     hours, seconds = divmod(seconds, 3600)
     minutes = seconds // 60
     return (hours, minutes)
@@ -263,11 +261,11 @@ def format_activity(activity, mean=True):
     else:
         message += f"has been {TYPES[activity.type]} **{activity.name}**"
         hours, minutes = 0, 0
-        if "start" in activity.timestamps:
-            hours, minutes = get_time(activity.timestamps["start"])
+        if activity.start:
+            hours, minutes = get_time(activity.start)
         if hours > 1:
             message += f" for over {hours} hours"
-        elif hours > 1:
+        elif hours == 1:
             message += f" for over an hour"
         else:
             if minutes == 1:
