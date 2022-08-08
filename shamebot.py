@@ -109,7 +109,7 @@ async def on_message(message):
                             elif hours > 1:
                                 time_str += f"{hours} hrs "
                             time_str += f"{minutes} min"
-                            time_str += ")"
+                            time_str += ") "
                         details = None
                         if type(activity).__name__ == "Activity":
                             details = activity.details
