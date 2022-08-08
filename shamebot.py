@@ -4,6 +4,7 @@ import datetime
 import json
 import math
 from random import randrange
+import re
 
 with open("config.json") as file:
     config = json.load(file)
@@ -44,6 +45,8 @@ MEAN_BINZ = [
 NICE_FLAGS = [
     "be nice"
 ]
+
+TRUCKS = [":truck:", ":articulated_lorry:", ":pickup_truck:", ":fire_engine:"]
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -97,7 +100,7 @@ async def on_message(message):
                         else:
                             channel_artists[artist] = [new_listener]
                     elif type(activity).__name__ in ["Activity", "Game", "Streaming"]:
-                        time_str = ""
+                        time_str = " "
                         if activity.start:
                             time_str += "("
                             hours, minutes = get_time(activity.start)
@@ -107,7 +110,10 @@ async def on_message(message):
                                 time_str += f"{hours} hrs "
                             time_str += f"{minutes} min"
                             time_str += ")"
-                        new_gamer = (member.display_name, time_str)
+                        details = None
+                        if type(activity).__name__ == "Activity":
+                            details = activity.details
+                        new_gamer = (member.display_name, time_str, details)
                         if activity.name in channel_activities:
                             channel_activities[activity.name].append(new_gamer)
                         else:
@@ -139,7 +145,10 @@ async def on_message(message):
                     mean,
                 )
                 for gamer in channel_activities[activity]:
-                    activity_str += f"> **{gamer[0]}** {gamer[1]}\n"
+                    activity_str += f"> **{gamer[0]}**{gamer[1]}"
+                    if gamer[2]:
+                        activity_str += f"- *{gamer[2]}*"
+                    activity_str += '\n'
 
             await message.channel.send(f"{activity_str}{music_str}")
             return
@@ -274,8 +283,15 @@ def format_activity(activity, mean=True):
                 message += f" for {minutes} minutes"
             else:
                 message = "is" + message[8:]
+        if hasattr(activity, 'details') and activity.details:
+            message += f" - *{activity.details}*"
 
-    if mean:
+    if hasattr(activity, 'name') and len(re.findall(r"\btruck", activity.name.lower())) > 0:
+        message += " let's g" + ("o" * randrange(3, 11)) + " "
+        for truck_idx in range(randrange(3, 8)):
+            message += TRUCKS[randrange(len(TRUCKS))] * randrange(1, 6)
+        message += ":bangbang:"
+    elif mean:
         message = rudeify(message, COMMENT[randrange(len(COMMENT))])
 
     return message
