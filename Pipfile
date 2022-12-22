@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 discord = "*"
+inflect = "*"
 
 [dev-packages]
 
