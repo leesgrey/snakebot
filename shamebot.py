@@ -31,6 +31,12 @@ async def on_ready():
         activity=discord.Activity(type=discord.ActivityType.watching, name="always...")
     )
 
+@bot.event
+async def on_message(message):
+    if bot.user.mentioned_in(message):
+        await message.add_reaction("\N{FACE WITH ONE EYEBROW RAISED}")
+    await bot.process_commands(message)
+
 async def main():
     await load_extensions()
     async with bot:

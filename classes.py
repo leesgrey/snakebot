@@ -25,6 +25,7 @@ class BaseActivity():
     def __repr__(self):
         return f"Activity({self.users}, {self.activity})"
 
+
 class BaseUser():
     def __init__(self, name):
         self.name = name
@@ -46,6 +47,7 @@ class ArtistActivity(BaseActivity):
     def __repr__(self):
         return "Artist" + super().__repr__()
 
+
 class Listener(BaseUser):
     def __init__(self, name, song):
         super().__init__(name)
@@ -59,7 +61,7 @@ class Listener(BaseUser):
         return f":headphones: {song} by {artist}\n"
 
     @staticmethod
-    def get_progress_str(duration, start):
+    def get_progress_str(duration, start, url):
         elapsed_total = (datetime.now(timezone.utc) - start).total_seconds()
         song_total = duration.total_seconds()
 
@@ -67,7 +69,7 @@ class Listener(BaseUser):
         song_min, song_sec = divmod(song_total, 60)
 
         passed = min(int((elapsed_total / song_total) * 10), 10)
-        return f"{int(elapsed_min)}:{int(elapsed_sec):02} {'─' * passed}●{'─' * (10 - passed)} {int(song_min)}:{int(song_sec):02}"
+        return f"{int(elapsed_min)}:{int(elapsed_sec):02} {'─' * passed}●{'─' * (10 - passed)} {int(song_min)}:{int(song_sec):02} [▶ Spotify]({url})"
 
     def __repr__(self):
         return f"Listener({self.name}, {self.song})"
@@ -83,6 +85,7 @@ class GameActivity(BaseActivity):
     def __repr__(self):
         return "Game" + super().__repr__()
     
+
 class Gamer(BaseUser):
     def __init__(self, name, time=None, details=None):
         super().__init__(name)
@@ -91,10 +94,10 @@ class Gamer(BaseUser):
 
     def get_summary_str(self):
         summary_str = f"**{self.name}:**"
+        if self.details:
+            summary_str += f" *{self.details}*"
         if self.time:
             summary_str += f" {self.time}"
-        if self.details:
-            summary_str += f" - {self.details}"
         return f"{summary_str}\n"
 
     @staticmethod
@@ -123,6 +126,7 @@ class StreamActivity(BaseActivity):
 
     def __repr__(self):
         return "Stream" + super().__repr__()
+
 
 class Streamer(BaseUser):
     def __init__(self, name, url, platform=None, title=None):

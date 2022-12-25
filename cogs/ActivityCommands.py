@@ -3,11 +3,13 @@ from helpers import *
 from datetime import datetime
 from classes import ArtistActivity, Listener, GameActivity, Gamer, StreamActivity, Streamer
 import re
+from random import randrange, random
 
 class ActivityCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.easter_egg = None
+        self.fun_fields = FUN_USER_FIELDS
 
     @commands.command()
     async def set_easter_egg(self, ctx, message):
@@ -16,6 +18,39 @@ class ActivityCommands(commands.Cog):
             return
         self.easter_egg = message
         await ctx.channel.send(f"Set footer text to \"{message}\"")
+
+    @commands.command()
+    async def add_fun_field(self, ctx, key, name, value):
+        if ctx.author.id != 233678479458172930:
+            await ctx.channel.send("noooo :pouting_cat:")
+            return
+        try:
+            self.fun_fields[key] = {
+                'name': name,
+                'value': value
+            }
+            example = discord.Embed.from_dict({
+                'title': f"\"{key}\" example",
+                'fields': [FUN_USER_FIELDS[key]]})
+            await ctx.channel.send(f"Added secret field \"{key}\"")
+            await ctx.channel.send(embed=example)
+        except Exception as e:
+            print(e)
+
+    @commands.command()
+    async def remove_fun_field(self, ctx, key):
+        if ctx.author.id != 233678479458172930:
+            await ctx.channel.send("noooo :pouting_cat:")
+            return
+        try:
+            self.fun_fields.pop(key)
+            await ctx.channel.send(f"Removed secret field \"{key}\"")
+        except Exception as e:
+            print(e)
+
+    @commands.command()
+    async def list_fun_fields(self, ctx):
+        await ctx.channel.send(self.fun_fields.keys())
     
     @commands.command()
     async def clear_easter_egg(self, ctx):
@@ -91,7 +126,7 @@ class ActivityCommands(commands.Cog):
         summary_embed.set_thumbnail(url=channel.guild.icon)
         await channel.send(embed=summary_embed)
 
-    async def send_user_activity(self, ctx, target=None, nice=False):
+    async def send_user_activity(self, ctx, target=None):
         if target is None:
             user = ctx.author
         else:
@@ -102,34 +137,31 @@ class ActivityCommands(commands.Cog):
                 user = ctx.guild.get_member_named(target)
 
         if user is None:
-            await send_simple_embed(ctx.channel, get_message('user_not_found', nice, target))
+            await send_simple_embed(ctx.channel, get_message('user_not_found', target))
             return
         
         if user.bot is True:
             if user == self.bot.user:
                 await ctx.channel.send(get_message('user_is_me'))
                 return
-            await send_simple_embed(ctx.channel, get_message('user_is_bot', nice, user.display_name))
+            await send_simple_embed(ctx.channel, get_message('user_is_bot', user.display_name))
             return
 
         if user.status == discord.Status.offline:
-            if user == ctx.author and not nice:
-                await send_simple_embed(ctx.channel, get_message('caller_is_offline', None, user.display_name))
-                return
-            await send_simple_embed(ctx.channel, get_message('user_is_offline', nice, user.display_name))
+            await send_simple_embed(ctx.channel, get_message('user_is_offline', user.display_name))
             return
 
         activities = list(filter(lambda activity: activity.type != discord.ActivityType.custom, user.activities))
         if activities:
             await ctx.channel.send(embed=self.get_user_embed(activities, user))
         else:
-            await send_simple_embed(ctx.channel, get_message('user_no_activity', nice, user.display_name))
+            await send_simple_embed(ctx.channel, get_message('user_no_activity', user.display_name))
 
     def get_user_activity_field(self, activity):
         if activity.type == discord.ActivityType.listening:
             return {
                 'name': Listener.format_user_str(activity.title, activity.artists[0]),
-                'value': Listener.get_progress_str(activity.duration, activity.start)
+                'value': Listener.get_progress_str(activity.duration, activity.start, activity.track_url)
                 }
         elif activity.type == discord.ActivityType.streaming:
             return {
@@ -139,7 +171,7 @@ class ActivityCommands(commands.Cog):
         else:
             return {
                 'name': Gamer.format_user_str(activity.name),
-                'value': Gamer.format_user_details(get_time_str(activity), getattr(activity, "details", None))
+                'value': Gamer.format_user_details(get_time_str(activity), getattr(activity, 'details', None))
             }
 
     def get_user_embed(self, activities, user):
@@ -149,6 +181,9 @@ class ActivityCommands(commands.Cog):
             activity_fields.append(self.get_user_activity_field(activity))
             if hasattr(activity, "album_cover_url"):
                 thumbnail = activity.album_cover_url
+        
+        if random() < 0.1:
+            activity_fields.append(list(FUN_USER_FIELDS.values())[randrange(len(FUN_USER_FIELDS))])
 
         user_embed = discord.Embed.from_dict({
             'fields': activity_fields,

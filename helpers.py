@@ -17,6 +17,25 @@ EMOJI = [
     ":grimacing:",
 ]
 
+FUN_USER_FIELDS = {
+    'worm' : {
+        'name': ":worm: playing with they worm",
+        'value': "who up?"
+    },
+    'simp': {
+        'name': ":person_bowing: simping",
+        'value': "down bad as usual..."
+    },
+    'orb': {
+        'name': ":crystal_ball: pondering they orb",
+        'value': ".   +✵    .  ✹  *· .     ✫   · "
+    },
+    'wonka': {
+        'name': ":tophat: wonkin they willy",
+        'value': ":flushed: :chocolate_bar:"
+    }
+}
+
 def get_random_emoji(min=1, max=None):
     if max:
         count = randint(min, max)
@@ -26,72 +45,26 @@ def get_random_emoji(min=1, max=None):
 
 MESSAGES = {
     'no_activity': "No one's doing anything :cry:",
-    'user_not_found': {
-        'nice': "Cannot find user \"{}\"",
-        'mean': f"who tf is \"{{}}\" {get_random_emoji()}"
-    },
-    "user_is_bot": {
-        'nice': "**{}** is a bot :robot:",
-        'mean': f"**{{}}** is a bot u dummy {get_random_emoji()}"
-    },
+    'user_not_found': "Cannot find user \"{}\"",
+    "user_is_bot": "**{}** is a bot :robot:",
     'user_is_me': "ya mum lol",
-    'user_is_offline': {
-        'nice': "**{}** is offline :sleeping:",
-        'mean': f"**{{}}** is offline... touching grass maybe... you should try it sometime..... {get_random_emoji()}"
-    },
-    'caller_is_offline': "you're \"offline\"? :face_with_raised_eyebrow: liar lmao :lying_face:",
-    'user_no_activity': {
-        'nice': "{} isn't doing anything :smile:",
-        'mean': f"{{}} isn't doing anything... go outside {get_random_emoji(1, 3)}"
-    },
+    'user_is_offline': "**{}** is offline :sleeping:",
+    'user_no_activity': "**{}** isn't doing anything :person_standing:",
     'summary_title': "Current Activity in #{}",
-    'easter_egg': "merry christmas! :snowman2:"
 }
 
-def get_message(key, nice=None, *args):
+def get_message(key, *args):
     arguments = ', '.join(args)
     try:
-        if nice is None:
-            return MESSAGES[key].format(arguments)
-        else:
-            if nice is False:
-                return MESSAGES[key]["mean"].format(arguments)
-            return MESSAGES[key]["nice"].format(arguments)
+        return MESSAGES[key].format(arguments)
     except KeyError as e:
-        print(e)
+        print("wah " + e)
         
-
-TYPES = {
-    discord.ActivityType.playing: "playing",
-    discord.ActivityType.streaming: "streaming",
-    discord.ActivityType.listening: "listening to",
-    discord.ActivityType.watching: "watching",
-    discord.ActivityType.competing: "competing in",
-}
-
-PUNCTUATION = ["!", "?", ".", "¿"]
-
-COMMENT = ["cringe", "lol", "lmao", "ok"]
-
-MEAN_BINZ = [
-    "not you actually listening to this :joy_cat:",
-    "this isn't even music :scream_cat:",
-    "cringe :pouting_cat:",
-    "shut up :pouting_cat:",
-    "ain't no way :skull:"
-]
-
-NICE_FLAGS = [
-    "be nice"
-]
-
-TRUCKS = [":truck:", ":articulated_lorry:", ":pickup_truck:", ":fire_engine:"]
-
 async def send_simple_embed(channel, text):
     await channel.send(embed=discord.Embed(description=text))
 
 def get_time_str(activity):
-    if hasattr(activity, 'start'):
+    if hasattr(activity, 'start') and activity.start is not None:
         hours, minutes = get_time(activity.start)
         if hours:
             return(f"({hours}{p.plural('hr', hours)} {minutes}{p.plural('min', minutes)})")
@@ -118,16 +91,3 @@ def format_item(name, users, verb, emoji="", mean=True):
     message += "\n"
 
     return message
-
-def rudeify(message, quip=None, force_min1=0, force_max1=4, force_min2=0, force_max2=4):
-    rude_msg = message
-    rude_msg += PUNCTUATION[randrange(len(PUNCTUATION))] * randrange(
-        force_min1, force_max1
-    )
-    if quip:
-        rude_msg += " " + quip
-        rude_msg += PUNCTUATION[randrange(len(PUNCTUATION))] * randrange(
-            force_min2, force_max2
-        )
-
-    return rude_msg
