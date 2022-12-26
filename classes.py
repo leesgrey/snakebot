@@ -61,15 +61,18 @@ class Listener(BaseUser):
         return f":headphones: {song} by {artist}\n"
 
     @staticmethod
-    def get_progress_str(duration, start, url):
-        elapsed_total = (datetime.now(timezone.utc) - start).total_seconds()
-        song_total = duration.total_seconds()
+    def format_user_details(duration, start, url):
+        progress_str = ""
+        if start is not None:
+            elapsed_total = (datetime.now(timezone.utc) - start).total_seconds()
+            song_total = duration.total_seconds()
 
-        elapsed_min, elapsed_sec = divmod(elapsed_total, 60)
-        song_min, song_sec = divmod(song_total, 60)
+            elapsed_min, elapsed_sec = divmod(elapsed_total, 60)
+            song_min, song_sec = divmod(song_total, 60)
 
-        passed = min(int((elapsed_total / song_total) * 10), 10)
-        return f"{int(elapsed_min)}:{int(elapsed_sec):02} {'─' * passed}●{'─' * (10 - passed)} {int(song_min)}:{int(song_sec):02} [▶ Spotify]({url})"
+            passed = min(int((elapsed_total / song_total) * 10), 10)
+            progress_str = f"{int(elapsed_min)}:{int(elapsed_sec):02} {'─' * passed}●{'─' * (10 - passed)} {int(song_min)}:{int(song_sec):02}"
+        return f"{progress_str} [▶ Spotify]({url})"
 
     def __repr__(self):
         return f"Listener({self.name}, {self.song})"

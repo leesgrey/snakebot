@@ -35,7 +35,7 @@ class ActivityCommands(commands.Cog):
             await ctx.channel.send(f"Added secret field \"{key}\"")
             await ctx.channel.send(embed=example)
         except Exception as e:
-            print(e)
+            print(f"Could not add easter egg field {key} - {e}")
 
     @commands.command()
     async def remove_fun_field(self, ctx, key):
@@ -45,8 +45,10 @@ class ActivityCommands(commands.Cog):
         try:
             self.fun_fields.pop(key)
             await ctx.channel.send(f"Removed secret field \"{key}\"")
+        except KeyError:
+            await ctx.channel.send(f"Could not find field \"{key}\"")
         except Exception as e:
-            print(e)
+            print(f"Could not remove field {key} - {e}")
 
     @commands.command()
     async def list_fun_fields(self, ctx):
@@ -67,7 +69,7 @@ class ActivityCommands(commands.Cog):
                 await self.send_summary(
                     ctx.channel,
                     self.get_summary_activities(ctx.channel.members),
-                    get_message('summary_title', None, ctx.channel.name))
+                    get_message('summary_title', ctx.channel.name))
             except Exception as e:
                 print(f"channel - {e}")
         else:
@@ -82,7 +84,9 @@ class ActivityCommands(commands.Cog):
         streams = {}
         # kinda stinky
         for member in list(filter(lambda member: not member.bot, members)):
-            for activity in member.activities:
+            print(member)
+            for activity in list(filter(lambda activity: activity.type != discord.ActivityType.custom, member.activities)):
+                print(activity)
                 if activity.type == discord.ActivityType.listening:
                     if activity.artists[0] not in artists:
                         artists[activity.artists[0]] = ArtistActivity(activity.artists[0])
@@ -97,7 +101,7 @@ class ActivityCommands(commands.Cog):
                         activity.url,
                         activity.platform,
                         activity.name)
-                elif activity.type != discord.ActivityType.custom:  # custom used to display custom status
+                elif activity.type == discord.ActivityType.playing:  # custom used to display custom status
                     if activity.name not in games:
                         games[activity.name] = GameActivity(activity.name)
                     games[activity.name].add_user(
@@ -161,7 +165,7 @@ class ActivityCommands(commands.Cog):
         if activity.type == discord.ActivityType.listening:
             return {
                 'name': Listener.format_user_str(activity.title, activity.artists[0]),
-                'value': Listener.get_progress_str(activity.duration, activity.start, activity.track_url)
+                'value': Listener.format_user_details(activity.duration, activity.start, activity.track_url)
                 }
         elif activity.type == discord.ActivityType.streaming:
             return {
