@@ -4,20 +4,20 @@ import json
 import asyncio
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-p", "--prefix")
-args = parser.parse_args()
-
 with open("config.json") as file:
     config = json.load(file)
 
+# allow alternate prefix for testing, default to ?
+parser = argparse.ArgumentParser()
+parser.add_argument("-p", "--prefix")
+args = parser.parse_args()
 if args.prefix:
     bot = commands.Bot(command_prefix=args.prefix, intents=discord.Intents.all())
 else:
     bot = commands.Bot(command_prefix="?", intents=discord.Intents.all())
 
 async def load_extensions():
-    for cog_file in ["ActivityCommands"]:
+    for cog_file in ["ActivityCommands", "SaidCommands"]:
         try:
             await bot.load_extension(f"cogs.{cog_file}")
             print(f"Loaded extension {cog_file}")
@@ -26,15 +26,15 @@ async def load_extensions():
 
 @bot.event
 async def on_ready():
-    print(f"hai im {bot.user} (prefix: {bot.command_prefix})")
+    print(f"{bot.user} online B] (prefix: {bot.command_prefix})")
     await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.watching, name="always...")
+        activity=discord.Activity(type=discord.ActivityType.playing, name="around")
     )
 
 @bot.event
 async def on_message(message):
     if bot.user.mentioned_in(message):
-        await message.add_reaction("\N{FACE WITH ONE EYEBROW RAISED}")
+        await message.add_reaction("\N{WAVING HAND SIGN}")
     await bot.process_commands(message)
 
 async def main():

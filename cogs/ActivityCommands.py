@@ -4,64 +4,36 @@ from datetime import datetime
 from classes import ArtistActivity, Listener, GameActivity, Gamer, StreamActivity, Streamer
 import re
 from random import randrange, random
+import json
 
+# TODO: move to slash commands
+# commands that output user and server activity
 class ActivityCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.easter_egg = None
-        self.fun_fields = FUN_USER_FIELDS
+        self.footer = None
 
-    @commands.command()
-    async def set_easter_egg(self, ctx, message):
-        if ctx.author.id != 233678479458172930:
-            await ctx.channel.send("noooo :pouting_cat:")
-            return
-        self.easter_egg = message
-        await ctx.channel.send(f"Set footer text to \"{message}\"")
+        with open("config.json") as file:
+            self.config = json.load(file)
 
+    # TODO: move to admin cog
     @commands.command()
-    async def add_fun_field(self, ctx, key, name, value):
-        if ctx.author.id != 233678479458172930:
-            await ctx.channel.send("noooo :pouting_cat:")
-            return
-        try:
-            self.fun_fields[key] = {
-                'name': name,
-                'value': value
-            }
-            example = discord.Embed.from_dict({
-                'title': f"\"{key}\" example",
-                'fields': [FUN_USER_FIELDS[key]]})
-            await ctx.channel.send(f"Added secret field \"{key}\"")
-            await ctx.channel.send(embed=example)
-        except Exception as e:
-            print(f"Could not add easter egg field {key} - {e}")
+    async def set_footer(self, ctx, message=None):
+        if ctx.author.id in self.config["ADMIN_IDS"]:
+            self.footer = message
+            if message == None:
+                await ctx.channel.send(f"Cleared footer text")
+            else:
+                await ctx.channel.send(f"Set footer text to \"{message}\"")
+        else:
+            await ctx.channel.send("Noooo :pouting_cat:")
 
+    # TODO: move to admin cog
     @commands.command()
-    async def remove_fun_field(self, ctx, key):
-        if ctx.author.id != 233678479458172930:
-            await ctx.channel.send("noooo :pouting_cat:")
-            return
-        try:
-            self.fun_fields.pop(key)
-            await ctx.channel.send(f"Removed secret field \"{key}\"")
-        except KeyError:
-            await ctx.channel.send(f"Could not find field \"{key}\"")
-        except Exception as e:
-            print(f"Could not remove field {key} - {e}")
+    async def clear_footer(self, ctx):
+        await self.set_footer(ctx);
 
-    @commands.command()
-    async def list_fun_fields(self, ctx):
-        await ctx.channel.send(self.fun_fields.keys())
-    
-    @commands.command()
-    async def clear_easter_egg(self, ctx):
-        if ctx.author.id != 233678479458172930:
-            await ctx.channel.send("noooo :pouting_cat:")
-            return
-        self.easter_egg = None
-        await ctx.channel.send(f"Cleared footer text")
-
+    # Print user or channel activity
     @commands.command()
     async def wyd(self, ctx, target=None):
         if target in ["all", "y'all", "yall"]:
@@ -71,12 +43,12 @@ class ActivityCommands(commands.Cog):
                     self.get_summary_activities(ctx.channel.members),
                     get_message('summary_title', ctx.channel.name))
             except Exception as e:
-                print(f"channel - {e}")
+                print(f"Could not send channel activity - {e}")
         else:
             try:
                 await self.send_user_activity(ctx, target)
             except Exception as e:
-                print(f"user - {e}")
+                print(f"Could not send user activity - {e}")
 
     def get_summary_activities(self, members):
         games = {}
@@ -126,7 +98,7 @@ class ActivityCommands(commands.Cog):
             'description': empty_description,
             'fields': activity_fields
         })
-        summary_embed.set_footer(text=self.easter_egg)
+        summary_embed.set_footer(text=self.footer)
         summary_embed.set_thumbnail(url=channel.guild.icon)
         await channel.send(embed=summary_embed)
 
@@ -194,10 +166,11 @@ class ActivityCommands(commands.Cog):
             'timestamp': datetime.now(timezone.utc).isoformat(),
         })
         user_embed.set_author(name=f"{user.display_name}'s current activity", icon_url=user.avatar)
-        user_embed.set_footer(text=self.easter_egg)
+        user_embed.set_footer(text=self.footer)
         if thumbnail:
             user_embed.set_thumbnail(url=thumbnail)
         return user_embed       
+
 
 async def setup(bot):
 	await bot.add_cog(ActivityCommands(bot))
