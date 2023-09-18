@@ -3,6 +3,7 @@ from discord.ext import commands
 import json
 import asyncio
 import argparse
+from discord import Interaction
 
 with open("config.json") as file:
     config = json.load(file)
@@ -40,6 +41,11 @@ async def on_message(message):
 async def main():
     await load_extensions()
     async with bot:
-        await bot.start(config["TOKEN"])
+        await bot.login(config["TOKEN"])
+        # bot.tree.copy_global_to(guild=discord.Object(id=1019756789614526474))
+        # ahhh = await bot.tree.sync(guild=discord.Object(id=1019756789614526474))
+        ahhh = await bot.tree.sync()
+        print(ahhh)
+        await bot.connect()
 
 asyncio.run(main())
