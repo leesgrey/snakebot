@@ -50,6 +50,39 @@ class ActivityCommands(commands.Cog):
                 continue
 
             for activity in member.activities:
+                if activity.type == discord.ActivityType.listening:
+                    if "listening" not in activities:
+                        activities["listening"] = {}
+                    artist = activity.artists[0]
+                    if artist not in activities["listening"]:
+                        activities["listening"][artist] = ArtistActivity(artist)
+                    activities["listening"][artist].add_user(
+                        member.display_name, activity.title  # song title
+                    )
+                elif activity.type == discord.ActivityType.streaming:
+                    if "streaming" not in activities:
+                        activities["streaming"] = {}
+                    game = activity.game
+                    if game not in activities["streaming"]:
+                        activities["streaming"][game] = StreamActivity(game)
+                    activities["streaming"][game].add_user(
+                        member.display_name,
+                        activity.url,  # stream link
+                        activity.platform,  # stream platform
+                        activity.name,  # stream title
+                    )
+                elif activity.type == discord.ActivityType.playing:
+                    if "" not in activities:
+                        activities["playing"] = {}
+                    game = activity.name
+                    if game not in activities["playing"]:
+                        activities["playing"][game] = GameActivity(game)
+                    activities["playing"][game].add_user(
+                        member.display_name,
+                        get_time_str(activity),
+                        getattr(activity, "details", None),
+                    )
+                """
                 match activity.type:
                     case discord.ActivityType.listening:
                         if "listening" not in activities:
@@ -83,6 +116,7 @@ class ActivityCommands(commands.Cog):
                             get_time_str(activity),
                             getattr(activity, "details", None),
                         )
+                """
         return activities
 
     def get_channel_embed(self, members, title=None):
