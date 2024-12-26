@@ -6,7 +6,6 @@ import re
 import discord
 from discord import Interaction, app_commands
 
-# TODO: move to slash commands
 class SaidCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
