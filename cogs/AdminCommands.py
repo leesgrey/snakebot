@@ -26,7 +26,7 @@ class AdminCommands(commands.Cog):
     async def set_footer(self, interaction: Interaction, message: str = None):
         try:
             await interaction.response.defer(thinking=True)
-            self.footer = message
+            self.bot.footer = message
             if message == None:
                 await interaction.followup.send(f"cleared footer text")
             else:
@@ -42,7 +42,7 @@ class AdminCommands(commands.Cog):
         try:
             # TODO: invoke set_footer()
             await interaction.response.defer(thinking=True)
-            self.footer = None
+            self.bot.footer = None
             await interaction.followup.send(f"cleared footer text")
         except Exception as e:
             print(e)

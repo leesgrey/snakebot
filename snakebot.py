@@ -50,6 +50,7 @@ async def main():
     await load_extensions()
     async with bot:
         await bot.login(config["TOKEN"])
+        await bot.connect()
 
 
 asyncio.run(main())

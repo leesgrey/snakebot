@@ -6,24 +6,19 @@ import re
 import discord
 from discord import Interaction, app_commands
 
+
 class SaidCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(
-        name="say",
-        description="hoohoohee",
-    )
+    @app_commands.command(name="say", description="hoohoohee")
     async def say(self, interaction: Interaction):
         try:
             await self.said.callback(self, interaction)
         except Exception as e:
             print(e)
 
-    @app_commands.command(
-        name="said",
-        description="heeheehoo",
-    )
+    @app_commands.command(name="said", description="heeheehoo")
     async def said(self, interaction: Interaction, target: str = None):
         try:
             await interaction.response.defer(thinking=True)
@@ -43,7 +38,9 @@ class SaidCommands(commands.Cog):
             speaker_bytes = await self.get_avatar(speaker)
 
             # ??
-            final_buffer = await self.bot.loop.run_in_executor(None, self.create_speech_img, speaker_bytes)
+            final_buffer = await self.bot.loop.run_in_executor(
+                None, self.create_speech_img, speaker_bytes
+            )
 
             # read docs...
             file = discord.File(filename="speech.png", fp=final_buffer)
@@ -54,22 +51,22 @@ class SaidCommands(commands.Cog):
 
     @staticmethod
     async def get_avatar(user):
-        return await user.display_avatar.replace(format='png', size=512).read()
-    
+        return await user.display_avatar.replace(format="png", size=512).read()
+
     def get_emoji():
         pass
 
     @staticmethod
     def create_speech_img(speaker):
-        bubble_img = Image.open('bubbleimg.png')
-        bubble_mask = Image.open('bubblemask.png')
+        bubble_img = Image.open("assets/bubbleimg.png")
+        bubble_mask = Image.open("assets/bubblemask.png")
 
         with Image.open(BytesIO(speaker)) as speaker_img:
-            speaker_img = speaker_img.resize((512, 512))
+            speaker_img = speaker_img.resize((256, 256))
             speaker_img.paste(bubble_img, mask=bubble_mask)
 
             final_buffer = BytesIO()
-            speaker_img.save(final_buffer, 'png')
+            speaker_img.save(final_buffer, "png")
 
         bubble_img.close()
         bubble_mask.close()
@@ -77,5 +74,6 @@ class SaidCommands(commands.Cog):
         final_buffer.seek(0)
         return final_buffer
 
+
 async def setup(bot):
-	await bot.add_cog(SaidCommands(bot))
+    await bot.add_cog(SaidCommands(bot))
