@@ -18,7 +18,7 @@ else:
 
 
 async def load_extensions():
-    for cog_file in ["AdminCommands", "ActivityCommands", "SaidCommands"]:
+    for cog_file in ["AdminCommands", "ActivityCommands", "SaidCommands", "SourdoughCommands"]:
         try:
             await bot.load_extension(f"cogs.{cog_file}")
             print(f"Loaded extension {cog_file}")
